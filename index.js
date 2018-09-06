@@ -223,7 +223,7 @@ app.get('/captcha',function(req, res){
 app.get('/captchaCompute',function(req, res){
     var captcha = svgCaptcha.createMathExpr({
         size: 5, // 验证码长度
-        ignoreChars: '0o1iUuVv', // 验证码字符中排除 0o1iUuVv
+        ignoreChars: '0o1UuVvWwIiLlOo', // 验证码字符中排除 0o1iUuVv
         noise: 5, // 干扰线条的数量
         color: '#fff', // 验证码的字符是否有颜色，默认没有，如果设定了背景，则默认有
         background: '#e4393c' // 验证码图片背景颜色
@@ -235,7 +235,7 @@ app.get('/captchaCompute',function(req, res){
             if(err){
                 console.log(err)
             }else{
-
+                console.log('成功生成验证码')
             }
         }))
         .catch(e => console.error(e));
@@ -244,6 +244,7 @@ app.get('/captchaCompute',function(req, res){
 })
 
 app.post('/api/login',(req, res)=>{
+    console.log(req.body.phone)
     const { login } = db
     let phone = req.body.phone
     let password = req.body.password
@@ -269,7 +270,6 @@ app.post('/api/login',(req, res)=>{
                     data:{}
                 })
             }
-
         })
         .catch(err=>{
             console.log(err)

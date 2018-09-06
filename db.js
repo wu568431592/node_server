@@ -7,7 +7,7 @@ function login (phone){
                 reject(err);
                 return;
             }
-            let sql = 'SELECT * FROM userList WHERE phone='+phone
+            const sql = 'SELECT * FROM userList WHERE phone=' + phone
             connection.query( sql , function(error,res){
                 connection.release();
                 if(error){
