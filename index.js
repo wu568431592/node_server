@@ -283,8 +283,109 @@ app.post('/api/login',(req, res)=>{
         })
 
 })
+app.post('/api/updateMemorialDay',(req, res)=>{
+    const { id, phone, name, time } = req.body
+    const { updateMemorialDay, insertMemorialDay } = db
+    if(!id){
+        //insert
+        insertMemorialDay({
+            phone:phone,
+            name:name,
+            time:time,
+        })
+            .then(res=>{
+                if(result.affectedRows>0){
+                    res.send({
+                        code:200,
+                        message:'success',
+                    })
+                }
+            })
+            .catch(err=>{
+                console.log(err)
+                res.send({
+                    code:200,
+                    message:'error',
+                })
+            })
 
+    }else{
+        //update
+        updateMemorialDay({
+            ...req.body
+        })
+            .then(result=>{
+                if(result.affectedRows>0){
+                    res.send({
+                        code:200,
+                        message:'success',
+                    })
+                }
+            })
+            .catch(err=>{
+                console.log(err)
+                res.send({
+                    code:400,
+                    message:'error',
+                })
+            })
+    }
 
+})
+app.post('/api/getMemorialDay',(req, res)=>{
+    const { phone } = req.body
+    console.log(req.body)
+    const { getMemorialDay } = db
+    let data = []
+    getMemorialDay(phone)
+        .then(result=>{
+            const now = new Date()
+            const nowStamp = now.getTime();
+            const now_month = now.getMonth()+1<10 ? '0'+ Number(now.getMonth()+1) : now.getMonth()+1
+            const now_date = now.getDate()<10? '0'+now.getDate():now.getDate()
+            const now_formate = now_month+'-'+now_date
+            console.log(now)
+            result.map((val,key)=>{
+                const id = val.id;
+                const phone =  val.user_phone
+                const name = val.memorial_day_name
+                const time = val.memorial_day_time
+                const times  = new Date(Date.parse(time.replace(/-/g,"/")))
+                const timeStamp = times.getTime()
+                const month = times.getMonth()+1<10 ? '0'+ Number(times.getMonth()+1) : times.getMonth()+1
+                const date = times.getDate()<10? '0'+times.getDate():times.getDate()
+                const timeformat = month+'-'+date
+                const next = ''
+                if(now_formate<=timeformat){
+                    console.log('xiaoyu')
+                }else{
+                    console.log('dayu')
+                }
+                console.log(id,phone,name,time,timeStamp,timeformat)
+                const day = parseInt((now - timeStamp)/(60*60*24*1000))
+                let obj = {
+                    id:val.id,
+                    phone:val.user_phone,
+                    name:val.memorial_day_name,
+                    time:val.memorial_day_time,
+                    day:day,
+                }
+                data.push(obj)
+            })
+            res.send({
+                code:200,
+                message:'success',
+                data:data
+            })
+        })
+        .catch(err=>{
+            console.log(err)
+            res.send({
+                code:400,
+                message:'error',
+            })
+        })
+})
 
 app.listen(8888);
 console.log('服务器已经启动')
