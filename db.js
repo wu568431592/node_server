@@ -82,10 +82,32 @@ function getMemorialDay(phone){
     })
 }
 
+function deleteMemorialDay(payload){
+    return new Promise(function(resolve, reject){
+        pool.getConnection(function(err,connection){
+            if(err){
+                reject(err);
+                return;
+            }
+            const sql = 'DELETE FROM memorialDayList WHERE id=?'
+            const sqlparams = [payload.id]
+            connection.query( sql,sqlparams, function(error,res){
+                connection.release();
+                if(error){
+                    reject(error);
+                    connection.rollback();
+                    return;
+                }
+                resolve(res);
+            });
+        });
+    })
+}
 
 module.exports = {
     login,
     insertMemorialDay,
     updateMemorialDay,
     getMemorialDay,
+    deleteMemorialDay,
 }

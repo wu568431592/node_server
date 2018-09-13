@@ -293,7 +293,7 @@ app.post('/api/updateMemorialDay',(req, res)=>{
             name:name,
             time:time,
         })
-            .then(res=>{
+            .then(result=>{
                 if(result.affectedRows>0){
                     res.send({
                         code:200,
@@ -314,7 +314,7 @@ app.post('/api/updateMemorialDay',(req, res)=>{
         updateMemorialDay({
             ...req.body
         })
-            .then(result=>{
+            .then( result =>{
                 if(result.affectedRows>0){
                     res.send({
                         code:200,
@@ -330,21 +330,19 @@ app.post('/api/updateMemorialDay',(req, res)=>{
                 })
             })
     }
-
 })
 app.post('/api/getMemorialDay',(req, res)=>{
     const { phone } = req.body
-    console.log(req.body)
     const { getMemorialDay } = db
     let data = []
     getMemorialDay(phone)
         .then(result=>{
             const now = new Date()
-            const nowStamp = now.getTime();
+            const nowStamp = now.getTime()
             const now_month = now.getMonth()+1<10 ? '0'+ Number(now.getMonth()+1) : now.getMonth()+1
             const now_date = now.getDate()<10? '0'+now.getDate():now.getDate()
             const now_formate = now_month+'-'+now_date
-            console.log(now)
+            const now_year = now.getFullYear()
             result.map((val,key)=>{
                 const id = val.id;
                 const phone =  val.user_phone
@@ -355,21 +353,24 @@ app.post('/api/getMemorialDay',(req, res)=>{
                 const month = times.getMonth()+1<10 ? '0'+ Number(times.getMonth()+1) : times.getMonth()+1
                 const date = times.getDate()<10? '0'+times.getDate():times.getDate()
                 const timeformat = month+'-'+date
-                const next = ''
-                if(now_formate<=timeformat){
-                    console.log('xiaoyu')
+                let next = ''
+                if(now_formate<timeformat){
+                    next = (now_year)+'-'+timeformat+' 00:00'
                 }else{
-                    console.log('dayu')
-
+                    next = (Number(now_year)+1)+'-'+timeformat+' 00:00'
                 }
-                console.log(id,phone,name,time,timeStamp,timeformat)
-                const day = parseInt((now - timeStamp)/(60*60*24*1000))
+                const nextStamp = new Date(Date.parse(next.replace(/-/g,"/"))).getTime()
+                const countDown = parseInt((nextStamp - nowStamp)/(60*60*24*1000))
+                console.log(id,phone,name,time,timeStamp,timeformat,next)
+                const day = parseInt((nowStamp - timeStamp)/(60*60*24*1000))
                 let obj = {
                     id:val.id,
                     phone:val.user_phone,
                     name:val.memorial_day_name,
                     time:val.memorial_day_time,
                     day:day,
+                    next:next,
+                    countDown:countDown,
                 }
                 data.push(obj)
             })
@@ -386,6 +387,34 @@ app.post('/api/getMemorialDay',(req, res)=>{
                 message:'error',
             })
         })
+})
+
+app.post('/api/deleteMemorialDay',(req,res)=>{
+    const { id } = req.body
+    const { deleteMemorialDay } = db
+    deleteMemorialDay({id:id})
+        .then(result=>{
+            console.log(result)
+            if(result.affectedRows>0){
+                res.send({
+                    code:200,
+                    message:'success',
+                })
+            }else{
+                res.send({
+                    code:400,
+                    message:'error',
+                })
+            }
+        })
+        .catch(err=>{
+            console.log(err)
+            res.send({
+                code:400,
+                message:'error',
+            })
+        })
+
 })
 
 app.listen(8888);
