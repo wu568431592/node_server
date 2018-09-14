@@ -49,11 +49,13 @@ function updateMemorialDay(payload){
                 reject(err);
                 return;
             }
-            const sql = 'SELECT * FROM userList WHERE phone=' + phone
-            connection.query( sql , function(error,res){
+            const sql = 'UPDATE memorialDayList SET memorial_day_time=?,memorial_day_name=? WHERE id=?'
+            const sqlparams = [payload.time,payload.name,payload.id]
+            connection.query( sql, sqlparams, function(error,res){
                 connection.release();
                 if(error){
                     reject(error);
+                    connection.rollback();
                     return;
                 }
                 resolve(res);

@@ -310,6 +310,7 @@ app.post('/api/updateMemorialDay',(req, res)=>{
             })
 
     }else{
+        console.log(id)
         //update
         updateMemorialDay({
             ...req.body
@@ -340,7 +341,7 @@ app.post('/api/getMemorialDay',(req, res)=>{
             const now = new Date()
             const nowStamp = now.getTime()
             const now_month = now.getMonth()+1<10 ? '0'+ Number(now.getMonth()+1) : now.getMonth()+1
-            const now_date = now.getDate()<10? '0'+now.getDate():now.getDate()
+            const now_date = now.getDate()<10? '0'+ now.getDate():now.getDate()
             const now_formate = now_month+'-'+now_date
             const now_year = now.getFullYear()
             result.map((val,key)=>{
@@ -361,7 +362,6 @@ app.post('/api/getMemorialDay',(req, res)=>{
                 }
                 const nextStamp = new Date(Date.parse(next.replace(/-/g,"/"))).getTime()
                 const countDown = parseInt((nextStamp - nowStamp)/(60*60*24*1000))
-                console.log(id,phone,name,time,timeStamp,timeformat,next)
                 const day = parseInt((nowStamp - timeStamp)/(60*60*24*1000))
                 let obj = {
                     id:val.id,
